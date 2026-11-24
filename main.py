@@ -25,6 +25,9 @@ def main() -> int:
     if not LINE.strip():
         print("FAIL: line is only white space", file=sys.stderr)
         return 1
+    if LINE.endswith("\n"):
+        print("FAIL: line ends with a trailing newline", file=sys.stderr)
+        return 1
     if "\n" in LINE or "\r" in LINE:
         print("FAIL: line is not a single line", file=sys.stderr)
         return 1
@@ -33,8 +36,10 @@ def main() -> int:
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
+    # Write exactly LINE, no trailing newline: the gate counts the file's
+    # characters, so the file must be byte-for-byte the judged line.
     with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(LINE + "\n")
+        f.write(LINE)
 
     print(f"Wrote {len(LINE)} chars to {path}")
     return 0
